@@ -138,28 +138,54 @@
 		switch(e.key){
 			case "1":
 				options.Geometry = 0
-				addMesh(emptymaterial);				
+				if(textureOn){
+					addMesh(textureMap)
+				}
+				else{
+					addMesh(emptymaterial)
+				}			
 				console.log("torus")
 				break;
 			case "2":
 				options.Geometry = 1
-				addMesh(emptymaterial);
+				if(textureOn){
+					addMesh(textureMap)
+				}
+				else{
+					addMesh(emptymaterial)
+				}
 				console.log("cilindro")
 				break;
 			case "3":
 				options.Geometry = 2
-				addMesh(emptymaterial);
+				if(textureOn){
+					addMesh(textureMap)
+				}
+				else{
+					addMesh(emptymaterial)
+				}
 				console.log("cone")
 				break;
 			case "4":
 				options.Geometry = 3
-				addMesh(emptymaterial);
+				if(textureOn){
+					addMesh(textureMap)
+				}
+				else{
+					addMesh(emptymaterial)
+				}
 				console.log("esfera")
 				break;
 			case "t":
 				workOnTexture()
 				break;
+			case "T":
+				workOnTexture()
+				break;
 			case "n":
+				workOnNormalAxes()
+				break;
+			case "N":
 				workOnNormalAxes()
 				break;
 		}
