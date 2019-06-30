@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<!-- three.js -->
+		<script src="js/build/three.js"></script>
+				
+		<!-- incluir biblioteca de interface gráfica -->
+		<script src="js/examples/js/libs/dat.gui.min.js"></script>
+		
+		<!-- incluir a biblioteca do trackball -->
+		<script src="js/examples/js/controls/TrackballControls.js"></script>
+	
+		<script>
+			function init()
+			{
+
+	
+				//variável que armazena instantes de tempo da aplicação
+				var clock = new THREE.Clock();
+				var scene = new THREE.Scene();
+				var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
+				 //posicionar a câmera
+				camera.position.x = 10.0;
+				camera.position.y = 10.0;
+				camera.position.z = 10.0;
+
+				var renderer = new THREE.WebGLRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				var torusBufferGeometry = new THREE.TorusBufferGeometry( 1, 0.3, 10, 25 );
+				//Textura
+				var texture = new THREE.TextureLoader().load( 'velazquez_texture_256.jpg' );
+				var material = new THREE.MeshBasicMaterial( { map: texture }  );
+				var torus = new THREE.Mesh( torusBufferGeometry, material );
+				scene.add( torus );
+				//adicionar eixos
+				var axes = new THREE.AxisHelper(20);
+				scene.add(axes);
+				
+
+
+
+
+
+				
+				
+				
+
+
+				
+				/*******************TRACKBALL**********************/
+				/**************************************************/
+				var trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
+				trackballControls.rotateSpeed = 0.6;
+
+				
+				function animate()
+				{
+					//<!--tempo passado entre o último frame e o frame atual-->
+					var delta = clock.getDelta();
+					
+					//<!-- atualiza posição da câmera -->
+					trackballControls.update(delta);
+				
+				
+					requestAnimationFrame(animate);
+					
+					torus.rotation.x += 0.06
+
+					renderer.render(scene, camera);
+				}
+				
+				animate();
+			}
+		window.onload = init;
+		</script>
+
+	</body>
+</html>
