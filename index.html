@@ -10,8 +10,19 @@
 		</style>
 	</head>
 	<body>
-		<div id="menu" style="color:white; position: absolute;top: 10px; width: 100%; text-align: left; z-index: 100;display:block;"> 
-			Press 1 to draw Torus, 2 to draw Cylinder, 3 to draw Cone, 4 to draw Sphere, T to aply/remove texture, N to draw/remove normal axis
+		<div id="menu" style="color:red; position: absolute;top: 50px; width: 100%; text-align: left; z-index: 100;display:block;"> 
+			Press a, A: Draw Axes.
+			b, B: Draw Box. 
+			g, G: Change background color.
+			x, X: Rotate about x-axis.
+			y, Y: Rotate about y-axis. 
+			z, Z: Rotate about z-axis. 
+			i, I: Return object to initial position.
+			n, N: Toggle normal display.
+			o, O: Increment object display: Torus -> Cylinder -> Cone -> Sphere.
+			1,2,3,4: Display the ith object.
+			t, T: Apply texture/Wireframe.
+			p, P: Pause.
 		</div>
 		<div id="container"></div>
 	<!-- three.js -->
@@ -25,63 +36,68 @@
 
 	<!-- incluir a biblioteca stats -->
 	<script src="js/examples/js/libs/stats.min.js"></script>
+	
+	<!-- incluir a biblioteca math -->
+	<script src="js/src/math/Math.js"></script>
+	
 
 	<script>
-
-	var clock, scene, camera,renderer, trackballControls;
+	var clock, scene, camera,renderer, trackballControls, xAxis, yAxis, zAxis, background, pause, origem;
 	var controls,gui;
 	var mesh, geometry;
 	var container, stats;
-
 	var geometries = [
 				new THREE.TorusBufferGeometry( 1, 0.3, 10, 25 ),											  
 				new THREE.CylinderBufferGeometry( 75, 75, 200, 8, 8 ),
 				new THREE.ConeBufferGeometry( 5, 20, 32 ),
 				new THREE.SphereBufferGeometry( 100, 12, 12 )
 			];
-
 	var options = {
 		Geometry: 0
 	};
-
-	var emptymaterial = new THREE.MeshBasicMaterial( { color: 0xfefefe, wireframe: true, opacity: 0.5 } );
-
+	var emptymaterial = new THREE.MeshBasicMaterial( { color: 0xfefefe, opacity: 0.5 } );
+	
 	var textureOn = false
-
 	var normalAxesOn = false
-
+	var axesOn = true
+	var pauseOn = false
+	var pause = false
+	var wirefireOn = false
+	var boxOn = false
+	
+	
+	
+	var AxisHelper = new THREE.AxisHelper(200);
+	//var box = new THREE.BoxHelper( options.Geometry, 0x000000 );
+	
 	//Textura
 	var texture = new THREE.TextureLoader().load( 'velazquez_texture_256.jpg' );
-	var textureMap = new THREE.MeshBasicMaterial( { map: texture }  );
+	var textureMap = new THREE.MeshBasicMaterial( {color: false,  map: texture }  );
 
+	
 	function addMesh(material)
 	{
 		if ( mesh !== undefined ) {
 					
 			scene.remove( mesh );
 			geometry.dispose();
-
 		}
-
 		geometry = geometries[ options.Geometry ];
-
 		// scale geometry to a uniform size
-
 		geometry.computeBoundingSphere();
-
 		var scaleFactor = 160 / geometry.boundingSphere.radius;
 		geometry.scale( scaleFactor, scaleFactor, scaleFactor );
-
 		mesh = new THREE.Mesh( geometry, material );
+		material.color.set(0x87CEFA);
 		scene.add( mesh );
 		
 		if(normalAxesOn){
 			var vertexNormalsHelper = new THREE.VertexNormalsHelper( mesh, 10 );
 			mesh.add( vertexNormalsHelper );
 		}
-		
-	}
 
+
+	}
 	function init()
 	{
 		container = document.getElementById( 'container' );
@@ -92,48 +108,48 @@
 		scene = new THREE.Scene();
 		
 		//camera
-		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         //posicionar a câmera
-        camera.position.x = 200;
-        camera.position.y = 200;
-		camera.position.z = 200;
+        //camera.position.x = 500;
+        camera.position.y = 500;
+		camera.position.z = 500;
+		
+		
+		
 		
 		//renderer
-		renderer = new THREE.WebGLRenderer({ antialias: true } );
+		renderer = new THREE.WebGLRenderer( );		
 		renderer.setPixelRatio( window.devicePixelRatio );									  
 		renderer.setSize( window.innerWidth, window.innerHeight );
+		background = true
 		document.body.appendChild(renderer.domElement);
 		
 		/*******************TRACKBALL**********************/
 		/**************************************************/
 		trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
-		trackballControls.rotateSpeed = 5.0;
 		trackballControls.zoomSpeed = 1.0;
 		trackballControls.panSpeed = 1.0;
 
-		//adicionar eixos
-		var axes = new THREE.AxisHelper(200);
-		scene.add(axes);
 		
 		addMesh(emptymaterial);
-
 		var geometries = {
 			TorusBufferGeometry: 0,
 			CylinderBufferGeometry: 1,
 			ConeBufferGeometry: 2,
 			SphereBufferGeometry: 3
 		};
-
 		gui = new dat.GUI( { width: 350 } );
+		
+		
+		
 		
 		// Opções de Geometria //
 		gui.add( options, 'Geometry', geometries ).onChange( function () {
 			addMesh(emptymaterial);
 		});
-
+		xAxis = true
 		animate();
 	}
-
 	document.onkeydown = function(e){
 		switch(e.key){
 			case "1":
@@ -176,11 +192,109 @@
 				}
 				console.log("esfera")
 				break;
+			case "a":
+				if (axesOn == true){
+					scene.add( AxisHelper );
+					axesOn = false
+				}
+				else{
+					scene.remove( AxisHelper );
+					axesOn = true
+				}
+					
+				break;
+			case "A":
+				if (axesOn == true){
+					scene.add( AxisHelper );
+					axesOn = false
+				}
+				else{
+					scene.remove( AxisHelper );
+					axesOn = true
+				}
+				break;
+			case "g":
+				if (background == true){
+					renderer.setClearColor (0xffffff, 1);
+					background = false
+				}
+				else{
+					renderer.setClearColor (0x000000, 1);
+					background = true
+				}	
+				break;
+			case "G":
+				if (background == true){
+					renderer.setClearColor (0xffffff, 1);
+					background = false
+				}
+				else{
+					renderer.setClearColor (0x000000, 1);
+					background = true
+				}	
+				break;
+			case "h":
+			
+			case "i":
+				yAxis = false
+				xAxis = false
+				zAxis = false
+				
+				
+				break;
+			case "p":
+				pause = true
+			
+
+				break;
+			case "P":
+				pause = true
+				
+				break;
 			case "t":
 				workOnTexture()
 				break;
 			case "T":
 				workOnTexture()
+				break;
+			case "x":
+				xAxis = true
+				yAxis = false
+				zAxis = false
+				pause = false
+				
+				break;
+			case "X":
+				xAxis = true
+				yAxis = false
+				zAxis = false
+				pause = false
+				
+				break;
+			case "y":
+				yAxis = true
+				xAxis = false
+				zAxis = false
+				pause = false
+				
+				break;
+			case "Y":
+				yAxis = true
+				xAxis = false
+				zAxis = false
+				pause = false
+				
+				break;
+			case "z":
+				zAxis = true
+				xAxis = false
+				yAxis = false	
+				break;
+			case "Z":
+				zAxis = true
+				xAxis = false
+				yAxis = false
+				
 				break;
 			case "n":
 				workOnNormalAxes()
@@ -188,8 +302,66 @@
 			case "N":
 				workOnNormalAxes()
 				break;
+				
+			case "o":
+				options.Geometry += 1
+				options.Geometry = THREE.Math.euclideanModulo(options.Geometry,4)
+				addMesh(emptymaterial)
+				break;	
+			case "O":
+				options.Geometry += 1
+				options.Geometry = THREE.Math.euclideanModulo(options.Geometry,4)
+				addMesh(emptymaterial)
+				break;	
+				
+			case "w":
+				if (wirefireOn == true){
+					emptymaterial.wireframe = true
+					wirefireOn = false
+				}
+				else{
+					emptymaterial.wireframe = false
+					wirefireOn = true
+				}	
+				break;
+			case "W":
+				if (wirefireOn == true){
+					emptymaterial.wireframe = true
+					wirefireOn = false
+				}
+				else{
+					emptymaterial.wireframe = false
+					wirefireOn = true
+				}	
+				break;	
+			case "b":
+				
+				if (boxOn == true){
+					scene.add( box );
+					boxOn = false
+				}
+				else{
+					scene.remove( box  );
+					boxOn = true
+				}
+				break;
+			case "B":
+				if (boxOn == true){
+					scene.add( box );
+					boxOn = false
+				}
+				else{
+					scene.remove( box  );
+					boxOn = true
+				}
+				
+				scene.add( box );
+				break;
+				
+				
 		}
 	}
+
 
 	function workOnTexture(){
 		// Remover textura caso já esteja aplicada
@@ -202,7 +374,6 @@
 			addMesh(emptymaterial)
 		}
 	}
-
 	function workOnNormalAxes(){
 		normalAxesOn = !normalAxesOn;
 		if(textureOn){
@@ -222,11 +393,47 @@
 		trackballControls.update(delta);
 	
 		requestAnimationFrame(animate);
-		//torus.rotation.x += 0.1;
-		//torus.rotation.y += 0.1;
+
+		scene.traverse( function (mesh) { 
+			if ( mesh.isMesh === true ) {
+				if (pause == false){
+					if ( xAxis == true){
+						 mesh.rotation.x += 0.06
+						 mesh.rotation.y = 0
+						 mesh.rotation.z = 0
+
+					}
+					else if( yAxis == true){
+						 mesh.rotation.y += 0.06
+						 mesh.rotation.x = 0
+						 mesh.rotation.z = 0
+					}
+					else if (zAxis == true){
+						 mesh.rotation.z += 0.06
+						 mesh.rotation.x = 0
+						 mesh.rotation.y = 0
+						 
+					}
+					else {
+						mesh.rotation.z = 0
+						mesh.rotation.x = 0
+						mesh.rotation.y = 0
+						pause = true
+					}
+				}
+				else {
+					mesh.rotation.x += 0
+					mesh.rotation.y += 0
+					mesh.rotation.z += 0
+				
+				}
+			
+			}
+			
+		});
+		
 		renderer.render(scene, camera);
 	}
-
 	window.onload = init;
 	</script>
 	</body>
