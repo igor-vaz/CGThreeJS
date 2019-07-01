@@ -69,7 +69,7 @@
 	
 	
 	var AxisHelper = new THREE.AxisHelper(200);
-	//var box = new THREE.BoxHelper( options.Geometry, 0x000000 );
+	
 	
 	//Textura
 	var texture = new THREE.TextureLoader().load( 'velazquez_texture_256.jpg' );
@@ -95,6 +95,11 @@
 		if(normalAxesOn){
 			var vertexNormalsHelper = new THREE.VertexNormalsHelper( mesh, 10 );
 			mesh.add( vertexNormalsHelper );
+		}
+		if (boxOn){
+			var box = new THREE.BoxHelper(mesh,0xffc0cb);
+			mesh.add( box );
+		
 		}
 
 
@@ -336,33 +341,26 @@
 				}	
 				break;	
 			case "b":
-				
-				if (boxOn == true){
-					scene.add( box );
-					boxOn = false
-				}
-				else{
-					scene.remove( box  );
-					boxOn = true
-				}
+				boxOnn()
 				break;
 			case "B":
-				if (boxOn == true){
-					scene.add( box );
-					boxOn = false
-				}
-				else{
-					scene.remove( box  );
-					boxOn = true
-				}
-				
-				scene.add( box );
+				boxOnn()
 				break;
 				
 				
 		}
 	}
 
+		function boxOnn(){
+		// Remover textura caso já esteja aplicada
+		boxOn = !boxOn;
+		if(!textureOn){
+			addMesh(emptymaterial)
+		}
+		else{
+			addMesh(emptymaterial)
+		}
+	}
 
 	function workOnTexture(){
 		// Remover textura caso já esteja aplicada
